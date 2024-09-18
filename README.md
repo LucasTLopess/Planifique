@@ -2,7 +2,7 @@
 
 ### Automatizando a Gestão de Planilhas Google
 
-![Planifique Logo](https://link-to-logo-image.com/logo.png) <!-- Se tiver um logo, pode adicionar o link da imagem aqui -->
+<img width="562" alt="image" src="https://github.com/user-attachments/assets/fc7cb370-111c-491c-826e-75fe4e7b68b5">
 
 ---
 
