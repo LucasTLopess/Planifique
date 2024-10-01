@@ -98,18 +98,12 @@
         sendButton.addEventListener('click', () => {
             const userMessage = messageInput.value;
             if (userMessage.trim() !== '') {
-                // Add user message to the chat
                 const userMsgDiv = document.createElement('div');
                 userMsgDiv.classList.add('message', 'user');
                 userMsgDiv.textContent = userMessage;
                 chatBox.appendChild(userMsgDiv);
                 messageInput.value = '';
-
-                // Scroll chat to bottom
                 chatBox.scrollTop = chatBox.scrollHeight;
-
-                // Here, you would make an API call to ChatGPT or Google Sheets API
-                // and handle the response to generate the sheet based on the user's input
             }
         });
     </script>
