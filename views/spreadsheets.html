@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Planilhas do Google Drive</title>
+</head>
+<body>
+    <h1>Planilhas do Google</h1>
+    <ul id="spreadsheet-list"></ul>
+
+    <script>
+        fetch('/spreadsheets')
+        .then(response => response.json())
+        .then(data => {
+            const list = document.getElementById('spreadsheet-list');
+            data.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${file.name} (ID: ${file.id})`;
+                list.appendChild(listItem);
+            });
+        })
+        .catch(error => {
+            console.error('Erro ao buscar planilhas:', error);
+        });
+    </script>
+</body>
+</html>

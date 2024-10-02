@@ -1,0 +1,7 @@
+# Ignore environment variables
+.env
+credentials.json
+
+# Outras exclusões comuns
+node_modules/
+dist/
