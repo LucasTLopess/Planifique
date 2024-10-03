@@ -42,7 +42,7 @@ app.get('/callback', async (req, res) => {
   oauth2Client.setCredentials(tokens);
 
   // Armazene os tokens de acesso em uma sessão (ou localStorage no frontend)
-  res.redirect('/chat'); // Redireciona para a página do chat
+  res.redirect('/'); // Redireciona para a página do chat
 });
 
 // Rota para o chat
@@ -123,6 +123,12 @@ app.post('/spreadsheets/data', async (req, res) => {
     res.status(500).send('Erro ao obter dados da planilha');
   }
 });
+
+app.get('/user-info', (req, res) => {
+  const user = req.user; // Supondo que você tenha a informação do usuário na requisição
+  res.json({ name: user.displayName }); // Retorne o nome do usuário
+});
+
 
 // Rota para listar as abas de uma planilha específica
 app.get('/spreadsheets/:spreadsheetId/sheets', async (req, res) => {

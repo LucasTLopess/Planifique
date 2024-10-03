@@ -29,8 +29,11 @@
         }
 
         .login-container {
-            margin: 50px auto;
-            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
         }
 
         .login-container h2 {
@@ -45,6 +48,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         .login-button:hover {
@@ -92,25 +96,6 @@
             margin: auto;
         }
 
-        .top-right {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-        }
-
-        .top-right button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-
-        .top-right button:hover {
-            background-color: #45a049;
-        }
-
         #chat-box {
             height: 300px;
             overflow-y: auto;
@@ -134,16 +119,14 @@
         <h1>Integração Google Sheets e ChatGPT</h1>
     </header>
 
-    <div id="login-view" style="display: none;">
-        <div class="login-container">
-            <h2>Projeto de Integração com Google Sheets</h2>
-            <p>Este projeto permite que você visualize suas planilhas e interaja com o ChatGPT para automação de tarefas!</p>
-            <div class="top-right">
-                <button class="login-button" onclick="window.location.href='/auth'">Entrar com Conta Google</button>
-            </div>
-        </div>
+    <!-- Página de Login -->
+    <div id="login-view" style="display: none;" class="login-container">
+        <h2>Projeto de Integração com Google Sheets</h2>
+        <p>Este projeto permite que você visualize suas planilhas e interaja com o ChatGPT para automação de tarefas!</p>
+        <button class="login-button" onclick="window.location.href='/auth'">Entrar com Conta Google</button>
     </div>
 
+    <!-- Conteúdo Principal -->
     <div id="content-view" class="container" style="display: none;">
         <div class="sidebar">
             <h2>Planilhas Disponíveis</h2>
@@ -167,11 +150,13 @@
         const isLoggedIn = true; // Altere para true ou false conforme o estado de login
 
         // Exibir a interface apropriada baseado no estado de autenticação
-        if (isLoggedIn) {
-            document.getElementById('content-view').style.display = 'flex';
-            loadSpreadsheets(); // Carregar planilhas ao estar logado
-        } else {
-            document.getElementById('login-view').style.display = 'block';
+        function checkLoginStatus() {
+            if (isLoggedIn) {
+                document.getElementById('content-view').style.display = 'flex';
+                loadSpreadsheets(); // Carregar planilhas ao estar logado
+            } else {
+                document.getElementById('login-view').style.display = 'flex';
+            }
         }
 
         // Função para carregar planilhas
@@ -226,6 +211,9 @@
             chatBox.innerHTML += `<div>${message}</div>`;
             chatBox.scrollTop = chatBox.scrollHeight; // Rola para baixo
         }
+
+        // Checar o estado de login ao carregar a página
+        checkLoginStatus();
     </script>
 </body>
 </html>
