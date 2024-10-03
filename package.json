@@ -1,0 +1,21 @@
+{
+  "name": "planifique",
+  "version": "1.0.0",
+  "description": "### Automatizando a Gestão de Planilhas Google",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.20.3",
+    "cookie-parser": "^1.4.6",
+    "dotenv": "^16.4.5",
+    "express": "^4.21.0",
+    "googleapis": "^144.0.0",
+    "helmet": "^8.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}

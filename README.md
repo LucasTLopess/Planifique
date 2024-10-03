@@ -8,7 +8,7 @@
 
 ## 📋 Sobre o Projeto
 
-O **Planifique** é uma ferramenta desenvolvida para simplificar e automatizar a criação, atualização e exclusão de planilhas no Google Planilhas. A integração com a API do Google oferece uma solução eficiente e acessível para quem precisa otimizar o tempo e evitar erros na manipulação de dados. 
+O **Planifique** é uma ferramenta desenvolvida para simplificar e automatizar a criação, atualização e exclusão de planilhas no Google Planilhas. A integração com a API do Google oferece uma solução eficiente e acessível para quem precisa otimizar o tempo e evitar erros na manipulação de dados.
 
 ### Principais Funcionalidades:
 - 📊 **Criação automática de planilhas**
@@ -49,5 +49,15 @@ Este repositório foi desenvolvido como parte do **projeto final de graduação*
 ## ⚙️ Como Executar o Projeto
 
 1. Clone o repositório:
+
    ```bash
    git clone https://github.com/seu-usuario/planifique.git
+
+#### Instruções para Configuração do Arquivo `.env`
+
+Este projeto utiliza um arquivo `.env` para gerenciar variáveis de ambiente, como chaves de API e outras configurações sensíveis. Para garantir que seu ambiente de desenvolvimento funcione corretamente, siga as instruções abaixo:
+
+No diretório raiz do seu projeto, crie um arquivo chamado `.env`.
+
+   ```bash
+   touch .env

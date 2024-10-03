@@ -1,0 +1,50 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Conectar ao Google e ChatGPT</title>
+</head>
+<body>
+    <h1>Conecte-se ao Google e ao ChatGPT</h1>
+
+    <!-- Botão de Autenticação com Google -->
+    <button onclick="window.location.href='/auth'">Conectar ao Google</button>
+
+    <!-- Campo de texto para enviar mensagem ao ChatGPT -->
+    <div>
+        <input type="text" id="userMessage" placeholder="Escreva sua mensagem">
+        <button onclick="sendMessage()">Enviar Mensagem ao ChatGPT</button>
+    </div>
+
+    <!-- Exibir resposta do ChatGPT -->
+    <div id="response"></div>
+
+    <script>
+        async function sendMessage() {
+            const userMessage = document.getElementById('userMessage').value;
+            if (!userMessage) {
+                alert('Por favor, escreva uma mensagem.');
+                return;
+            }
+
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userMessage })
+                });
+
+                const data = await response.json();
+                document.getElementById('response').innerText = data.content;
+            } catch (error) {
+                console.error('Erro ao se comunicar com o backend:', error);
+                document.getElementById('response').innerText = 'Erro ao se comunicar com o ChatGPT.';
+            }
+        }
+    </script>
+</body>
+</html>
