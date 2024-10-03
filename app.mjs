@@ -12,7 +12,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Adicione o middleware para analisar JSON
-app.use(express.json()); // <- Adicione esta linha
+app.use(express.json());
 app.use(express.static('views'));
 
 // Define o equivalente de __dirname para módulos ES
@@ -100,6 +100,58 @@ app.get('/spreadsheets', async (req, res) => {
   }
 });
 
+// Rota para obter dados de uma planilha específica
+app.post('/spreadsheets/data', async (req, res) => {
+  const { spreadsheetId, range } = req.body;
+
+  if (!oauth2Client.credentials) {
+    return res.status(401).send('Usuário não autenticado. Por favor, faça login.');
+  }
+
+  const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+
+  try {
+    const response = await sheets.spreadsheets.values.get({
+      spreadsheetId,
+      range,
+    });
+
+    const sheetData = response.data.values;
+    res.json(sheetData); // Retorna os dados da planilha
+  } catch (error) {
+    console.error('Erro ao obter dados da planilha:', error);
+    res.status(500).send('Erro ao obter dados da planilha');
+  }
+});
+
+// Rota para listar as abas de uma planilha específica
+app.get('/spreadsheets/:spreadsheetId/sheets', async (req, res) => {
+  const { spreadsheetId } = req.params;
+
+  if (!oauth2Client.credentials) {
+      return res.status(401).send('Usuário não autenticado. Por favor, faça login.');
+  }
+
+  const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
+
+  try {
+      const response = await sheets.spreadsheets.get({
+          spreadsheetId: spreadsheetId,
+          includeGridData: false, // Não precisa incluir os dados da grade para apenas listar as abas
+      });
+
+      const sheetTitles = response.data.sheets.map(sheet => ({
+          properties: {
+              title: sheet.properties.title,
+          },
+      }));
+
+      res.json({ sheets: sheetTitles });
+  } catch (error) {
+      console.error('Erro ao obter abas da planilha:', error);
+      res.status(500).send('Erro ao obter abas da planilha');
+  }
+});
 
 // Páginas frontend
 app.get('/chat', (req, res) => {
@@ -116,18 +168,15 @@ app.listen(PORT, () => {
 
 // Helmet para segurança
 app.use(
-    helmet({
-      contentSecurityPolicy: {
-        directives: {
-          defaultSrc: ["'self'"],
-          scriptSrc: ["'self'", "https://apis.google.com"],
-          styleSrc: ["'self'", "https://fonts.googleapis.com"],
-          fontSrc: ["'self'", "https://fonts.gstatic.com"],
-          imgSrc: ["'self'", "data:"],
-        },
+  helmet({
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "https://apis.google.com"],
+        styleSrc: ["'self'", "https://fonts.googleapis.com"],
+        fontSrc: ["'self'", "https://fonts.gstatic.com"],
+        imgSrc: ["'self'", "data:"],
       },
-    })
+    },
+  })
 );
-
-// Serve static files
-app.use(express.static('views'));

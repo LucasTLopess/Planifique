@@ -47,6 +47,17 @@
             margin-bottom: 10px;
         }
 
+        /* Dropdown de planilhas */
+        select {
+            width: 80%;
+            padding: 10px;
+            font-size: 1rem;
+            border: 2px solid #4CAF50;
+            border-radius: 5px;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
         /* Botão de enviar */
         button {
             padding: 10px 20px;
@@ -74,40 +85,84 @@
             color: #333;
             text-align: left;
         }
+
+        /* Estilo para a lista de planilhas */
+        #spreadsheetsList {
+            margin-top: 20px;
+            background-color: #e0e0e0;
+            border-radius: 5px;
+            padding: 10px;
+            display: none; /* Oculta a lista por padrão */
+        }
     </style>
 </head>
 <body>
     <div class="chat-container">
         <h1>Chat com ChatGPT</h1>
+
+        <!-- Dropdown para selecionar planilha -->
+        <select id="spreadsheetSelect" onchange="listSheets()">
+            <option value="">Selecione uma planilha</option>
+        </select>
+
+        <!-- Dropdown para selecionar a aba -->
+        <select id="sheetSelect">
+            <option value="">Selecione uma aba</option>
+        </select>
+
         <!-- Campo de texto para enviar mensagem ao ChatGPT -->
         <div>
-            <input type="text" id="userMessage" placeholder="Escreva sua mensagem">
+            <input type="text" id="userMessage" placeholder="Escreva sua pergunta sobre a planilha">
             <button onclick="sendMessage()">Enviar</button>
         </div>
 
+        <!-- Botão para listar planilhas -->
+        <button onclick="listSpreadsheets()">Listar Planilhas</button>
+
         <!-- Exibir resposta do ChatGPT -->
         <div id="response">Aguardando sua mensagem...</div>
+
+        <!-- Exibir lista de planilhas -->
+        <div id="spreadsheetsList"></div>
     </div>
 
     <script>
         async function sendMessage() {
             const userMessage = document.getElementById('userMessage').value;
+            const spreadsheetId = document.getElementById('spreadsheetSelect').value;
+            const sheetName = document.getElementById('sheetSelect').value;
             const responseBox = document.getElementById('response');
 
-            if (!userMessage) {
-                alert('Por favor, escreva uma mensagem.');
+            if (!userMessage || !sheetName) {
+                alert('Por favor, escreva uma mensagem e selecione uma aba.');
                 return;
             }
 
             responseBox.innerText = 'Enviando...';  // Mensagem de carregamento
 
+            // Obtendo dados da planilha antes de enviar para o ChatGPT
             try {
+                const range = `${sheetName}!A:Z`; // Pega todas as colunas da aba selecionada
+                const sheetDataResponse = await fetch('/spreadsheets/data', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ spreadsheetId: spreadsheetId, range: range })
+                });
+
+                const sheetData = await sheetDataResponse.json();
+                console.log(sheetData); // Verifique os dados da planilha
+
+                // Aqui você pode enviar os dados da planilha como parte da mensagem para o ChatGPT
+                const messageToSend = `${userMessage}\nDados da planilha: ${JSON.stringify(sheetData)}`;
+
                 const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: userMessage })
+                    body: JSON.stringify({ message: messageToSend, spreadsheetId: spreadsheetId })
                 });
 
                 const data = await response.json();
@@ -115,6 +170,75 @@
             } catch (error) {
                 console.error('Erro ao se comunicar com o backend:', error);
                 responseBox.innerText = 'Erro ao se comunicar com o ChatGPT.';
+            }
+        }
+
+        async function listSpreadsheets() {
+            const responseBox = document.getElementById('spreadsheetsList');
+            const spreadsheetSelect = document.getElementById('spreadsheetSelect');
+            responseBox.innerHTML = 'Buscando planilhas...'; // Mensagem de carregamento
+            responseBox.style.display = 'none'; // Oculta a lista inicialmente
+
+            try {
+                const response = await fetch('/spreadsheets', {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar planilhas');
+                }
+
+                const data = await response.json();
+                spreadsheetSelect.innerHTML = '<option value="">Selecione uma planilha</option>'; // Reseta o dropdown
+
+                if (data.length === 0) {
+                    responseBox.innerText = 'Nenhuma planilha encontrada.';
+                } else {
+                    data.forEach(sheet => {
+                        const option = document.createElement('option');
+                        option.value = sheet.id; // Usa o ID da planilha
+                        option.textContent = sheet.name; // Nome da planilha
+                        spreadsheetSelect.appendChild(option);
+                    });
+                    responseBox.innerHTML = '<h3>Planilhas:</h3><ul>' +
+                        data.map(sheet => `<li>${sheet.name} (ID: ${sheet.id})</li>`).join('') +
+                        '</ul>';
+                }
+            } catch (error) {
+                console.error('Erro ao listar planilhas:', error);
+                responseBox.innerText = 'Erro ao listar planilhas.';
+                responseBox.style.display = 'block'; // Exibe a mensagem de erro
+            }
+        }
+
+        async function listSheets() {
+            const spreadsheetId = document.getElementById('spreadsheetSelect').value;
+            const sheetSelect = document.getElementById('sheetSelect');
+
+            if (!spreadsheetId) return; // Retorna se não houver ID da planilha selecionada
+
+            try {
+                const response = await fetch(`/spreadsheets/${spreadsheetId}/sheets`, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                sheetSelect.innerHTML = '<option value="">Selecione uma aba</option>'; // Reseta o dropdown de abas
+
+                data.sheets.forEach(sheet => {
+                    const option = document.createElement('option');
+                    option.value = sheet.properties.title; // Usa o nome da aba
+                    option.textContent = sheet.properties.title; // Nome da aba
+                    sheetSelect.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Erro ao listar abas:', error);
             }
         }
     </script>
