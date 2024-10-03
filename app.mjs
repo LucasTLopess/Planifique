@@ -36,7 +36,7 @@ app.get('/auth', (req, res) => {
 });
 
 // Callback do Google OAuth2
-app.get('/oauth2callback', async (req, res) => {
+app.get('/callback', async (req, res) => {
   const { code } = req.query;
   const { tokens } = await oauth2Client.getToken(code);
   oauth2Client.setCredentials(tokens);
@@ -47,7 +47,12 @@ app.get('/oauth2callback', async (req, res) => {
 
 // Rota para o chat
 app.post('/chat', async (req, res) => {
-  const userMessage = req.body.message; // Isso agora deve funcionar corretamente
+  console.log(req.body);  // Verifique o que está sendo recebido na requisição
+  const userMessage = req.body.message;
+
+  if (!userMessage) {
+    return res.status(400).send('Mensagem não encontrada no corpo da requisição.');
+  }
 
   try {
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
@@ -62,14 +67,24 @@ app.post('/chat', async (req, res) => {
       }),
     });
     const data = await response.json();
-    res.json(data);
+
+    // Acesse o conteúdo da mensagem
+    const chatGptMessage = data.choices[0].message.content;
+    console.log(chatGptMessage);  // Verifica o conteúdo exato da resposta
+
+    res.json({ reply: chatGptMessage });
   } catch (error) {
-    res.status(500).send('Erro ao comunicar com a API');
+    console.error(error);
+    res.status(500).send('Erro ao comunicar com a API do ChatGPT');
   }
 });
 
 // Rota para exibir as planilhas do usuário
 app.get('/spreadsheets', async (req, res) => {
+  if (!oauth2Client.credentials) {
+    return res.status(401).send('Usuário não autenticado. Por favor, faça login.');
+  }
+
   const drive = google.drive({ version: 'v3', auth: oauth2Client });
 
   try {
@@ -77,18 +92,21 @@ app.get('/spreadsheets', async (req, res) => {
       q: "mimeType='application/vnd.google-apps.spreadsheet'",
       fields: 'files(id, name)',
     });
+
     res.json(response.data.files);
   } catch (error) {
+    console.error('Erro ao buscar planilhas:', error);
     res.status(500).send('Erro ao buscar planilhas do Google Drive');
   }
 });
+
 
 // Páginas frontend
 app.get('/chat', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'chat.html'));
 });
 
-app.get('/spreadsheets-view', (req, res) => {
+app.get('/spreadsheets', (req, res) => {
   res.sendFile(path.join(__dirname, 'views', 'spreadsheets.html'));
 });
 
