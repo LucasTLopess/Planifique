@@ -3,119 +3,299 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Planilhas do Google Drive</title>
+    <title>Google Sheets Dashboard</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f5f5f5;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --background: #f8f9fa;
+            --surface: #ffffff;
+            --border: #dadce0;
+            --shadow: 0 1px 3px 0 rgb(60 64 67 / 0.3), 0 4px 8px 3px rgb(60 64 67 / 0.15);
+            --shadow-hover: 0 2px 6px 2px rgb(60 64 67 / 0.15), 0 8px 12px 6px rgb(60 64 67 / 0.15);
+        }
+
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--background);
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+
+        header {
+            padding: 2rem 0;
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 2rem;
         }
 
         h1 {
-            color: #333;
+            font-size: 2rem;
+            font-weight: 600;
+            color: var(--text-primary);
             text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        h1 i {
+            color: var(--primary);
         }
 
         .grid-container {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-            gap: 20px;
-            padding: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1.5rem;
+            padding: 1rem;
         }
 
         .grid-item {
-            background-color: #fff;
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            transition: background-color 0.3s;
+            background: var(--surface);
+            border-radius: 0.75rem;
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
         }
 
         .grid-item:hover {
-            background-color: #e9ecef;
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
         }
 
-        .icon {
-            margin-bottom: 10px;
+        .grid-item a {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+            padding: 1.5rem;
+        }
+
+        .icon-wrapper {
+            background: var(--primary-light);
             width: 60px;
             height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1rem;
+        }
+
+        .icon-wrapper i {
+            font-size: 24px;
+            color: var(--primary);
         }
 
         .spreadsheet-name {
-            font-size: 18px;
-            font-weight: bold;
-            color: #333;
+            font-size: 1rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            margin: 0.5rem 0;
             display: block;
-            margin: 10px 0;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
         }
 
         .spreadsheet-id {
-            font-size: 12px;
-            color: #777;
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            display: block;
         }
 
-        a {
-            text-decoration: none;
-            color: inherit;
+        .actions {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-around;
         }
 
-        a:hover .spreadsheet-name {
-            text-decoration: underline;
+        .action-button {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 0.875rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            transition: all 0.2s ease;
+        }
+
+        .action-button:hover {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-secondary);
+        }
+
+        .error {
+            text-align: center;
+            padding: 2rem;
+            color: #d93025;
+            background: #fce8e6;
+            border-radius: 0.75rem;
+            margin: 1rem;
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .grid-container {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
 <body>
-    <h1>Planilhas do Google</h1>
-    <div class="grid-container" id="spreadsheet-list"></div>
+    <header>
+        <div class="container">
+            <h1>
+                <i class="fas fa-table"></i>
+                Google Sheets Dashboard
+            </h1>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="grid-container" id="spreadsheet-list">
+            <!-- Loading state -->
+            <div class="loading">
+                <i class="fas fa-spinner fa-spin"></i>
+                Loading spreadsheets...
+            </div>
+        </div>
+    </main>
 
     <script>
+        function createSpreadsheetCard(file) {
+            return `
+                <div class="grid-item">
+                    <a href="https://docs.google.com/spreadsheets/d/${file.id}" target="_blank" class="card-content">
+                        <div class="icon-wrapper">
+                            <i class="fas fa-file-excel"></i>
+                        </div>
+                        <span class="spreadsheet-name">${file.name}</span>
+                        <div class="actions">
+                            <button class="action-button" onclick="event.preventDefault(); window.open('https://docs.google.com/spreadsheets/d/${file.id}/edit', '_blank')">
+                                <i class="fas fa-edit"></i>
+                                Edit
+                            </button>
+                            <button class="action-button" onclick="event.preventDefault(); copyToClipboard('${file.id}')">
+                                <i class="fas fa-copy"></i>
+                                Copy ID
+                            </button>
+                        </div>
+                    </a>
+                </div>
+            `;
+        }
+
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                showToast('ID copied to clipboard!');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        function showToast(message) {
+            // Create and show a toast message
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                left: 50%;
+                transform: translateX(-50%);
+                background: var(--text-primary);
+                color: white;
+                padding: 12px 24px;
+                border-radius: 8px;
+                z-index: 1000;
+                animation: fadeInOut 2.5s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                document.body.removeChild(toast);
+            }, 2500);
+        }
+
+        // Add the fadeInOut animation to the stylesheet
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes fadeInOut {
+                0% { opacity: 0; transform: translate(-50%, 20px); }
+                15% { opacity: 1; transform: translate(-50%, 0); }
+                85% { opacity: 1; transform: translate(-50%, 0); }
+                100% { opacity: 0; transform: translate(-50%, -20px); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // Fetch and display spreadsheets
         fetch('/spreadsheets')
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Usuário não autenticado ou erro ao buscar planilhas.');
+                    throw new Error('Failed to fetch spreadsheets');
                 }
                 return response.json();
             })
             .then(data => {
                 const grid = document.getElementById('spreadsheet-list');
-                data.forEach(file => {
-                    const gridItem = document.createElement('div');
-                    gridItem.classList.add('grid-item');
-
-                    // Link para a planilha
-                    const link = document.createElement('a');
-                    link.href = `https://docs.google.com/spreadsheets/d/${file.id}`;
-                    link.target = '_blank'; // Abre em uma nova aba
-
-                    // Ícone de planilha
-                    const icon = document.createElement('img');
-                    icon.src = 'img/sheets-icon.svg'; // Ícone local
-                    icon.alt = 'Ícone de Planilha';
-                    icon.classList.add('icon');
-
-                    // Nome da planilha
-                    const name = document.createElement('span');
-                    name.textContent = file.name;
-                    name.classList.add('spreadsheet-name');
-
-                    // ID da planilha (opcional para exibição)
-                    const id = document.createElement('span');
-
-                    id.classList.add('spreadsheet-id');
-
-                    link.appendChild(icon);
-                    link.appendChild(name);
-                    link.appendChild(id);
-
-                    gridItem.appendChild(link);
-                    grid.appendChild(gridItem);
-                });
+                if (data.length === 0) {
+                    grid.innerHTML = `
+                        <div class="error">
+                            <i class="fas fa-info-circle"></i>
+                            No spreadsheets found. Create a new spreadsheet to get started.
+                        </div>
+                    `;
+                    return;
+                }
+                grid.innerHTML = data.map(file => createSpreadsheetCard(file)).join('');
             })
             .catch(error => {
-                console.error('Erro ao buscar planilhas:', error);
-                alert('Erro ao buscar planilhas. Talvez seja necessário fazer login.');
+                console.error('Error fetching spreadsheets:', error);
+                document.getElementById('spreadsheet-list').innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-circle"></i>
+                        Error loading spreadsheets. Please try again or check if you're logged in.
+                    </div>
+                `;
             });
     </script>
 </body>

@@ -1,106 +1,169 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ChatGPT Moderno</title>
+    <title>Planifique - Modern Sheet Analysis</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
-        /* Estilo da página */
-        body {
-            font-family: 'Open Sans', sans-serif;
-            background-image: linear-gradient(to bottom, #f4f4f9, #e0e0e0);
-            background-size: 100% 300px;
-            background-position: 0% 100%;
-            padding: 20px;
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+
+        :root {
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #64748b;
+            --background: #f8fafc;
+            --surface: #ffffff;
+            --text: #1e293b;
+            --error: #ef4444;
+        }
+
+        * {
             margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: var(--background);
+            color: var(--text);
+            min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            padding: 2rem;
         }
 
-        /* Container centralizado */
         .chat-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 600px;
+            background: var(--surface);
             width: 100%;
-            text-align: center;
-            margin: 20px auto;
+            max-width: 800px;
+            border-radius: 1rem;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            padding: 2rem;
         }
 
-        /* Estilo do título */
         h1 {
             font-size: 2.5rem;
-            color: #4CAF50;
-            margin-bottom: 20px;
-            font-weight: bold;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            text-align: center;
+            letter-spacing: -0.025em;
         }
 
-        /* Input de texto */
-        input[type="text"] {
-            width: 80%;
-            padding: 10px;
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
             font-size: 1rem;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
-            outline: none;
-            margin-bottom: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            background: var(--surface);
+            color: var(--text);
+            margin-bottom: 1rem;
         }
 
-        /* Dropdown de planilhas */
-        select {
-            width: 80%;
-            padding: 10px;
-            font-size: 1rem;
-            border: 2px solid #4CAF50;
-            border-radius: 5px;
+        select:focus, input:focus {
             outline: none;
-            margin-bottom: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
         }
 
-        /* Botão de enviar */
+        .button-group {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
         button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            color: #fff;
-            background-color: #4CAF50;
+            padding: 0.75rem 1.5rem;
             border: none;
-            border-radius: 5px;
+            border-radius: 0.5rem;
+            font-weight: 500;
             cursor: pointer;
-            transition: background-color 0.3s ease;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
         }
 
-        button:hover {
-            background-color: #45a049;
+        .primary-button {
+            background: var(--primary);
+            color: white;
+            flex: 1;
         }
 
-        /* Estilo da resposta */
+        .primary-button:hover {
+            background: var(--primary-dark);
+        }
+
+        .secondary-button {
+            background: #f1f5f9;
+            color: var(--secondary);
+        }
+
+        .secondary-button:hover {
+            background: #e2e8f0;
+        }
+
         #response {
-            margin-top: 20px;
-            padding: 15px;
-            background-color: #f0f0f0;
-            border-radius: 5px;
-            min-height: 50px;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            min-height: 100px;
             font-size: 1rem;
-            color: #333;
-            text-align: left;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            line-height: 1.6;
+            border: 1px solid #e2e8f0;
         }
 
-        /* Estilo para a lista de planilhas */
         #spreadsheetsList {
-            margin-top: 20px;
-            background-color: #e0e0e0;
-            border-radius: 5px;
-            padding: 10px;
+            margin-top: 1.5rem;
+            background: #f8fafc;
+            border-radius: 0.5rem;
+            padding: 1.5rem;
             display: none;
-            /* Oculta a lista por padrão */
+        }
+
+        .loading {
+            position: relative;
+            opacity: 0.7;
+        }
+
+        .loading::after {
+            content: "";
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            top: 50%;
+            left: 50%;
+            margin: -10px 0 0 -10px;
+            border: 2px solid #f3f3f3;
+            border-top: 2px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 640px) {
+            .button-group {
+                flex-direction: column;
+            }
+
+            .chat-container {
+                padding: 1rem;
+            }
         }
     </style>
 </head>
@@ -108,23 +171,32 @@
     <div class="chat-container">
         <h1>Planifique</h1>
 
-        <select id="spreadsheetSelect" onchange="listSheets()">
-            <option value="">Selecione uma planilha</option>
-        </select>
+        <div class="input-group">
+            <select id="spreadsheetSelect" onchange="listSheets()">
+                <option value="">Selecione uma planilha</option>
+            </select>
 
-        <select id="sheetSelect">
-            <option value="">Selecione uma aba</option>
-        </select>
-
-        <div>
-            <input type="text" id="userMessage" placeholder="Escreva sua pergunta sobre a planilha">
-            <button onclick="sendMessage()">Enviar</button>
+            <select id="sheetSelect">
+                <option value="">Selecione uma aba</option>
+            </select>
         </div>
 
-        <button onclick="listSpreadsheets()">Listar Planilhas</button>
+        <div class="input-group">
+            <input type="text" id="userMessage" placeholder="Escreva sua pergunta sobre a planilha">
+        </div>
+
+        <div class="button-group">
+            <button class="primary-button" onclick="sendMessage()">
+                <i class="fas fa-paper-plane"></i>
+                Enviar
+            </button>
+            <button class="secondary-button" onclick="listSpreadsheets()">
+                <i class="fas fa-table"></i>
+                Listar Planilhas
+            </button>
+        </div>
 
         <div id="response">Aguardando sua mensagem...</div>
-
         <div id="spreadsheetsList"></div>
     </div>
 
@@ -140,18 +212,20 @@
                 return;
             }
 
-            responseBox.innerText = 'Enviando...';
+            responseBox.classList.add('loading');
+            responseBox.innerText = 'Processando sua solicitação...';
+
             try {
-                const range = `${sheetName}!A:Z`; const sheetDataResponse = await fetch('/spreadsheets/data', {
+                const range = `${sheetName}!A:Z`;
+                const sheetDataResponse = await fetch('/spreadsheets/data', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ spreadsheetId: spreadsheetId, range: range })
+                    body: JSON.stringify({ spreadsheetId, range })
                 });
 
                 const sheetData = await sheetDataResponse.json();
-                console.log(sheetData);
                 const messageToSend = `${userMessage}\nDados da planilha: ${JSON.stringify(sheetData)}`;
 
                 const response = await fetch('/chat', {
@@ -159,21 +233,27 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ message: messageToSend, spreadsheetId: spreadsheetId })
+                    body: JSON.stringify({ message: messageToSend, spreadsheetId })
                 });
 
                 const data = await response.json();
                 responseBox.innerText = data.reply;
             } catch (error) {
                 console.error('Erro ao se comunicar com o backend:', error);
-                responseBox.innerText = 'Erro ao se comunicar com o ChatGPT.';
+                responseBox.innerText = 'Erro ao processar sua solicitação. Por favor, tente novamente.';
+            } finally {
+                responseBox.classList.remove('loading');
             }
         }
 
         async function listSpreadsheets() {
             const responseBox = document.getElementById('spreadsheetsList');
             const spreadsheetSelect = document.getElementById('spreadsheetSelect');
-            responseBox.innerHTML = 'Buscando planilhas...'; responseBox.style.display = 'none';
+
+            responseBox.style.display = 'block';
+            responseBox.classList.add('loading');
+            responseBox.innerHTML = 'Buscando planilhas...';
+
             try {
                 const response = await fetch('/spreadsheets', {
                     method: 'GET',
@@ -188,21 +268,34 @@
 
                 const data = await response.json();
                 spreadsheetSelect.innerHTML = '<option value="">Selecione uma planilha</option>';
+
                 if (data.length === 0) {
-                    responseBox.innerText = 'Nenhuma planilha encontrada.';
+                    responseBox.innerHTML = '<p>Nenhuma planilha encontrada.</p>';
                 } else {
                     data.forEach(sheet => {
                         const option = document.createElement('option');
-                        option.value = sheet.id; option.textContent = sheet.name; spreadsheetSelect.appendChild(option);
+                        option.value = sheet.id;
+                        option.textContent = sheet.name;
+                        spreadsheetSelect.appendChild(option);
                     });
-                    responseBox.innerHTML = '<h3>Planilhas:</h3><ul>' +
-                        data.map(sheet => `<li>${sheet.name} (ID: ${sheet.id})</li>`).join('') +
-                        '</ul>';
+
+                    responseBox.innerHTML = `
+                        <h3 style="margin-bottom: 1rem">Planilhas Disponíveis:</h3>
+                        <ul style="list-style: none">
+                            ${data.map(sheet => `
+                                <li style="padding: 0.5rem 0; border-bottom: 1px solid #e2e8f0">
+                                    <i class="fas fa-file-excel" style="color: var(--primary)"></i>
+                                    ${sheet.name}
+                                </li>
+                            `).join('')}
+                        </ul>
+                    `;
                 }
             } catch (error) {
                 console.error('Erro ao listar planilhas:', error);
-                responseBox.innerText = 'Erro ao listar planilhas.';
-                responseBox.style.display = 'block';
+                responseBox.innerHTML = '<p style="color: var(--error)">Erro ao listar planilhas.</p>';
+            } finally {
+                responseBox.classList.remove('loading');
             }
         }
 
@@ -211,6 +304,9 @@
             const sheetSelect = document.getElementById('sheetSelect');
 
             if (!spreadsheetId) return;
+
+            sheetSelect.classList.add('loading');
+
             try {
                 const response = await fetch(`/spreadsheets/${spreadsheetId}/sheets`, {
                     method: 'GET',
@@ -221,12 +317,18 @@
 
                 const data = await response.json();
                 sheetSelect.innerHTML = '<option value="">Selecione uma aba</option>';
+
                 data.sheets.forEach(sheet => {
                     const option = document.createElement('option');
-                    option.value = sheet.properties.title; option.textContent = sheet.properties.title; sheetSelect.appendChild(option);
+                    option.value = sheet.properties.title;
+                    option.textContent = sheet.properties.title;
+                    sheetSelect.appendChild(option);
                 });
             } catch (error) {
                 console.error('Erro ao listar abas:', error);
+                sheetSelect.innerHTML = '<option value="">Erro ao carregar abas</option>';
+            } finally {
+                sheetSelect.classList.remove('loading');
             }
         }
     </script>
