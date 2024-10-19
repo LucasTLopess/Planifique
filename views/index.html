@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integração com Google e ChatGPT</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        header {
+            background-color: #4CAF50;
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        header h1 {
+            margin: 0;
+        }
+
+        .container {
+            display: flex;
+            height: 100vh;
+        }
+
+        .login-container {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .login-container h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+
+        .login-button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .login-button:hover {
+            background-color: #45a049;
+        }
+
+        .content {
+            flex-grow: 1;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .sidebar {
+            width: 250px;
+            background-color: #333;
+            color: white;
+            padding: 20px;
+            height: 100vh;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar li {
+            margin-bottom: 10px;
+        }
+
+        .sidebar a {
+            color: white;
+            text-decoration: none;
+        }
+
+        .sidebar a:hover {
+            text-decoration: underline;
+        }
+
+        #chat-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 60%;
+            margin: auto;
+        }
+
+        #chat-box {
+            height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #f9f9f9;
+        }
+
+        #user-input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1>Integração Google Sheets e ChatGPT</h1>
+    </header>
+
+    <!-- Página de Login -->
+    <div id="login-view" style="display: none;" class="login-container">
+        <h2>Projeto de Integração com Google Sheets</h2>
+        <p>Este projeto permite que você visualize suas planilhas e interaja com o ChatGPT para automação de tarefas!</p>
+        <button class="login-button" onclick="window.location.href='/auth'">Entrar com Conta Google</button>
+    </div>
+
+    <!-- Conteúdo Principal -->
+    <div id="content-view" class="container" style="display: none;">
+        <div class="sidebar">
+            <h2>Planilhas Disponíveis</h2>
+            <ul id="spreadsheet-list">
+                <!-- Planilhas serão carregadas dinamicamente -->
+            </ul>
+        </div>
+
+        <div class="content">
+            <div id="chat-container">
+                <h2>Chat GPT</h2>
+                <div id="chat-box"></div>
+                <input type="text" id="user-input" placeholder="Digite sua mensagem..." />
+                <button id="send-button">Enviar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simular estado de autenticação (altere essa variável para testar)
+        const isLoggedIn = true; // Altere para true ou false conforme o estado de login
+
+        // Exibir a interface apropriada baseado no estado de autenticação
+        function checkLoginStatus() {
+            if (isLoggedIn) {
+                document.getElementById('content-view').style.display = 'flex';
+                loadSpreadsheets(); // Carregar planilhas ao estar logado
+            } else {
+                document.getElementById('login-view').style.display = 'flex';
+            }
+        }
+
+        // Função para carregar planilhas
+        async function loadSpreadsheets() {
+            const spreadsheetList = document.getElementById('spreadsheet-list');
+
+            try {
+                const response = await fetch('/spreadsheets'); // Altere para o endpoint real da API
+                const spreadsheets = await response.json();
+
+                spreadsheets.forEach(sheet => {
+                    const listItem = document.createElement('li');
+                    const link = document.createElement('a');
+                    link.href = sheet.url;
+                    link.textContent = sheet.name;
+                    listItem.appendChild(link);
+                    spreadsheetList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Erro ao carregar as planilhas:', error);
+            }
+        }
+
+        // Função para enviar mensagens ao ChatGPT
+        document.getElementById('send-button').onclick = async () => {
+            const userInput = document.getElementById('user-input').value;
+            if (userInput.trim() === '') return;
+
+            // Adiciona a mensagem do usuário ao chat
+            addMessageToChat('Você: ' + userInput);
+            document.getElementById('user-input').value = ''; // Limpa o campo de entrada
+
+            try {
+                const response = await fetch('/chat', { // Altere para o endpoint real da API
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userInput })
+                });
+
+                const data = await response.json();
+                addMessageToChat('ChatGPT: ' + data.reply); // Adiciona a resposta do ChatGPT ao chat
+            } catch (error) {
+                console.error('Erro ao enviar mensagem ao ChatGPT:', error);
+            }
+        };
+
+        // Função para adicionar mensagens ao chat
+        function addMessageToChat(message) {
+            const chatBox = document.getElementById('chat-box');
+            chatBox.innerHTML += `<div>${message}</div>`;
+            chatBox.scrollTop = chatBox.scrollHeight; // Rola para baixo
+        }
+
+        // Checar o estado de login ao carregar a página
+        checkLoginStatus();
+    </script>
+</body>
+</html>
