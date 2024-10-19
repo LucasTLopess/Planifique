@@ -30,7 +30,7 @@ const oauth2Client = new google.auth.OAuth2(
 app.get('/auth', (req, res) => {
   const authUrl = oauth2Client.generateAuthUrl({
     access_type: 'offline',
-    scope: ['https://www.googleapis.com/auth/drive.readonly', 'https://www.googleapis.com/auth/spreadsheets.readonly'],
+    scope: ['https://www.googleapis.com/auth/drive', 'https://www.googleapis.com/auth/spreadsheets'],
   });
   res.redirect(authUrl);
 });
@@ -42,7 +42,7 @@ app.get('/callback', async (req, res) => {
   oauth2Client.setCredentials(tokens);
 
   // Armazene os tokens de acesso em uma sessão (ou localStorage no frontend)
-  res.redirect('/'); // Redireciona para a página do chat
+  res.redirect('/home.html'); // Redireciona para a home
 });
 
 // Rota para o chat
@@ -76,6 +76,28 @@ app.post('/chat', async (req, res) => {
   } catch (error) {
     console.error(error);
     res.status(500).send('Erro ao comunicar com a API do ChatGPT');
+  }
+});
+
+// Rota para criar a planilha na API do Google Sheets
+app.post('/spreadsheets', async (req, res) => {
+  try {
+    // O JSON completo com 'title' e 'sheets' é recebido diretamente do ChatGPT via requisição
+    const sheetRequest = req.body; // Espera receber o JSON com a estrutura que o ChatGPT gerou
+    console.log(sheetRequest);
+
+    // Enviar a requisição diretamente para a API do Google Sheets
+    const sheets = google.sheets({ version: 'v4', auth: oauth2Client }); // Inicializa a API do Google Sheets
+    const response = await sheets.spreadsheets.create({
+      resource: sheetRequest // Usar o JSON completo do corpo da requisição
+    });
+
+    // Retornar o ID da planilha criada
+    res.json({ spreadsheetId: response.data.spreadsheetId });
+
+  } catch (error) {
+    console.error('Erro ao criar a planilha:', error);
+    res.status(500).json({ error: 'Erro ao criar a planilha' });
   }
 });
 
@@ -128,7 +150,6 @@ app.get('/user-info', (req, res) => {
   const user = req.user; // Supondo que você tenha a informação do usuário na requisição
   res.json({ name: user.displayName }); // Retorne o nome do usuário
 });
-
 
 // Rota para listar as abas de uma planilha específica
 app.get('/spreadsheets/:spreadsheetId/sheets', async (req, res) => {
