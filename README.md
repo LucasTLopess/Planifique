@@ -32,11 +32,9 @@ O objetivo do Planifique é **descomplicar** o uso do Google Planilhas, permitin
 
 ## 🛠️ Tecnologias Utilizadas
 
-- **Java (Spring Boot)** para o backend
+- **Node ** para o BFF.
 - **API do Google Planilhas** para integração direta com as planilhas
 - **OAuth 2.0** para autenticação segura
-- **Maven** para gerenciamento de dependências
-- **JUnit e Mockito** para testes automatizados
 
 ---
 
